@@ -1,0 +1,27 @@
+#BlueJ class context
+comment0.target=neuron
+comment0.text=\r\n\ Write\ a\ description\ of\ class\ neuron\ here.\r\n\ \r\n\ @Bob\ Calin-Jageman\r\n\ @1.0\r\n
+comment1.params=
+comment1.target=neuron()
+comment10.params=scale
+comment10.target=void\ prep_costumes(float)
+comment11.params=newtype
+comment11.target=void\ set_neuron_type(int)
+comment2.params=myworld
+comment2.target=void\ addedToWorld(greenfoot.World)
+comment3.params=
+comment3.target=void\ act()
+comment3.text=\r\n\ Act\ -\ do\ whatever\ the\ neuron\ wants\ to\ do.\ This\ method\ is\ called\ whenever\r\n\ the\ 'Act'\ or\ 'Run'\ button\ gets\ pressed\ in\ the\ environment.\r\n\ \r\n\ \r\n\ \r\n
+comment4.params=psp
+comment4.target=void\ stim(float)
+comment5.params=psp
+comment5.target=void\ activate_outputs(float)
+comment6.params=
+comment6.target=void\ fire()
+comment7.params=look
+comment7.target=void\ set_look(int)
+comment8.params=
+comment8.target=void\ reuptake()
+comment9.params=
+comment9.target=void\ release()
+numComments=12
