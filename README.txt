@@ -1,6 +1,6 @@
 # cartoon_network
 
-This is a simple and fun neural network simulator.  It lets students of nearly any age playfully explore how small sets of neurons can produce complex and interesting behaviors.  Also, the simulator can be connected to a Finch robots.
+This is a simple and fun neural network simulator.  It lets students of nearly any age playfully explore how small sets of neurons can produce complex and interesting behaviors.  Also, the simulator can be connected to a Finch robots.  Requires Java to be installed.  
 
 To get started:
 * Download cartoon_network.jar from the files posted here to github
@@ -10,6 +10,7 @@ To get started:
 * Click 'x' to enter excite mode, then click a neuron to excite it
 * Click the top-left corner to bring down a menu of all modes, and explore
 * Download the handout which provides instructions and a set of guided challenges for students to explore.
+** https://raw.githubusercontent.com/rcalinjageman/cartoon_network/master/cartoon%20network%20handout%20-%20d2.docx
 
 Some resources:
 * Check out this video on YouTube: https://youtu.be/_M4_F9M2ODc
@@ -17,5 +18,8 @@ Some resources:
 
 
 Want to connect to a FINCH robot? 
-* The robots are available here: 
-** http://www.finchrobot.com/
+* The robots are available here: http://www.finchrobot.com/
+
+Want to modify Cartoon Network?
+* The source code is written in Java within the Greenfoot framework
+* Learn more about Greenfoot here: https://www.greenfoot.org/ 
