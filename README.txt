@@ -11,6 +11,11 @@ To get started:
 * Click the top-left corner to bring down a menu of all modes, and explore
 * Download the handout which provides instructions and a set of guided challenges for students to explore.
 
+Some resources:
+* Check out this video on YouTube: https://youtu.be/_M4_F9M2ODc
+* There is also a powerpoint file here on github that walks you through the basics
+
+
 Want to connect to a FINCH robot? 
 * The robots are available here: 
 ** http://www.finchrobot.com/
