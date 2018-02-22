@@ -3,6 +3,7 @@ import java.awt.*;
 import java.text.DecimalFormat;
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
+import java.io.Serializable;
 
 /**
  * Write a description of class neuron here.
@@ -10,15 +11,17 @@ import javax.swing.JOptionPane;
  * @Bob Calin-Jageman
  * @1.0
  */
-public class neuron extends Actor
+public class neuron extends Actor implements Serializable
 {
     //basic neuron parameters...
     public int neuron_type;   // 1 silent, 2 spontaneous, 3 bursting
     public String output_type;    // "None", "Left forward", "Left backward", "Right forward", "Right backward", "Buzz", "Red", "Blue", "Green"
     public String input_type;  //"None", "Left hit", "Right hit", "Left light", "Right light", "Temperature"
+    public int oty, ity;
     public int activity_level;
     public int epsp_size;    
-    
+    public int x,y, rotation;
+      
     public float Vm;
     public float threshold;
     public float threshold_max;
@@ -26,13 +29,16 @@ public class neuron extends Actor
     public float threshold_tc;
     public float Vm_tc;
     public float Vm_rest;
+    public float cak;
+    public float gcak;
+    public float cak_tc;
     
     public int current_look;
     public String[] looks = {"neuron_rest.png", "neuron_fire1.png", "neuron_fire2.png", "neuron_fire3.png", "neuron_fire4.png", "neuron_fire5.png", "neuron_fire6.png"};
-    public GreenfootImage[] costumes;
+    public transient GreenfootImage[] costumes;
     private boolean isGrabbed;
     
-    private float size_scale;
+    public float size_scale;
     
     public int ntpool_size;
     public int ntpool;
@@ -43,7 +49,7 @@ public class neuron extends Actor
     public double actions;
     
     public int neuron_id;
-    public brain mybrain;
+    public transient brain mybrain;
     
    
     
@@ -58,6 +64,8 @@ public class neuron extends Actor
         neuron_type = 1;
         input_type = "None";
         output_type = "None";
+        ity = 0;
+        oty = 0;
         epsp_size = 1;
         
         Vm_rest = -50;
@@ -67,6 +75,10 @@ public class neuron extends Actor
         threshold_min = -30;
         threshold = threshold_min;
         threshold_tc = 20;
+        
+        cak = 0;
+        gcak = 0;
+        cak_tc = 60;
         
         ntpool_size = 10;
         ntpool = ntpool_size;
@@ -245,6 +257,16 @@ public class neuron extends Actor
                 
                 if ((response != null) && (response.length() > 0)) {
                     output_type = response.toString();
+                    int index = -1;
+                    for (int i =0; i<possibilities.length; i++) {
+                        if(possibilities[i].equals(response)) {
+                            index = i;
+                            break;
+                        }
+                    }
+                    if (index >-1) {
+                        oty = index;
+                    }
                  }    
             }
             
@@ -258,6 +280,16 @@ public class neuron extends Actor
                 
                 if ((response != null) && (response.length() > 0)) {
                     input_type = response.toString();
+                    int index = -1;
+                    for (int i =0; i<possibilities.length; i++) {
+                        if(possibilities[i].equals(response)) {
+                            index = i;
+                            break;
+                        }
+                    }
+                    if (index >-1) {
+                        ity = index;
+                    }
                  }    
             }
                                      
@@ -271,6 +303,7 @@ public class neuron extends Actor
         //check to see if over threshold
         if (Vm > threshold) {
             this.fire();
+         
         }
 
         //read inputs, if set
@@ -306,13 +339,23 @@ public class neuron extends Actor
         }
         
         //if not at rest, decay back towards rest
+        if (gcak > 0) {
+            Vm = Vm + ( gcak * cak);
+        }
+        
          if (Vm != Vm_rest) {
             Vm = Vm + ((Vm_rest - Vm) / Vm_tc);
         }
         
+        //calcium-activated K+ current
+         if (cak != 0) {
+             cak = cak + ((0 - cak) / cak_tc);
+            }
+        
         //if threshold has been reset after AP, decay back to normal threshold
          if (threshold != threshold_min) {
              threshold = threshold + ((threshold_min - threshold)/ threshold_tc);
+      
             }
         
         //handle synaptic delay after AP--cycle through costumes and then release NT            
@@ -349,6 +392,14 @@ public class neuron extends Actor
            //if outputs defined, update these in brain
         //"None", "Left forward", "Left backward", "Right forward", "Right backward", "Buzz", "Red", "Blue", "Green"
         //this is really clunky...probably best done using pointers to the brain class or some other, more elegant solution
+        StringBuilder sb = new StringBuilder();
+            for (char c : output_type.toCharArray()) {
+                sb.append((int)c);
+                sb.append(" ");
+            }
+        
+            
+        
         
         if (output_type == "Left forward") {
             mybrain.lmotor = mybrain.lmotor +  Math.abs(psp * mybrain.output_multiplier);
@@ -388,6 +439,7 @@ public class neuron extends Actor
         threshold = threshold_max;
         firing = true;
         firing_last_change = actions;
+        cak = cak - 0.2f;
     }
     
     public void set_look(int look) {
@@ -411,6 +463,7 @@ public class neuron extends Actor
         image.setFont(font);  
         DecimalFormat df = new DecimalFormat("#");
         image.drawString("id=" + neuron_id, 65, 15);
+        
         
         if (output_type == "None" & input_type == "None") {
             image.drawString("Vm=" + df.format(Vm), 65, 25);
@@ -443,8 +496,8 @@ public class neuron extends Actor
 
                    //"None", "Left hit", "Right hit", "Left light", "Right light", "Temperature"
  
-        if(input_type != "None")
-   //     if (mybrain.finch_started) {
+        if(input_type != "None" && mybrain!=null)
+        if (mybrain.finch_started) {
             if (input_type == "Left hit") {
                 image.drawString("LHit= " + String.valueOf(GreenFinch.get().isLeftHit()), 45, 25);
             }
@@ -466,7 +519,7 @@ public class neuron extends Actor
             }
 
 
-   //     }
+        }
         
         setImage(image);
         
@@ -481,6 +534,7 @@ public class neuron extends Actor
         }
     }
     
+     
     public void release() {
          //release NT pool...currently used fraction release = 1, but could be made
          //more sophisticated to implement STP dynamics
@@ -503,7 +557,7 @@ public class neuron extends Actor
                     
     }
     
-   private void prep_costumes(float scale) {
+   public void prep_costumes(float scale) {
        //preps collection of costumers and scales them in terms of width
        costumes = new GreenfootImage[7];
                         
@@ -522,19 +576,36 @@ public class neuron extends Actor
         if (newtype == 1) {
             Vm_rest = -50;
             Vm = Vm_rest;
+            gcak = 0;
             return;
         }
         if (newtype == 2) {
             Vm_rest = threshold_min+1;
             Vm = Vm_rest;
-            threshold_tc = 5 + ((10 - activity_level) *10);
+            threshold_tc = 5 + ((10 - activity_level) *10);;
+            gcak = 0;
             return;
         }
         if (newtype == 3) {
             Vm_rest = threshold_min+1;
             Vm = Vm_rest;
-            threshold_tc = 5 + ((10 - activity_level) *10);
+            threshold_tc = 5 + ((10 - activity_level) *3);
+            gcak = 1;
             return;
         }
+    }
+    
+    
+    public void unpack_type() {
+            String[] possibilities = {"None", "Left hit", "Right hit", "Left light", "Right light", "Temperature"};
+            input_type = possibilities[ity];
+            String[] outputs = {"None", "Left forward", "Left backward", "Right forward", "Right backward", "Buzz", "Red", "Blue", "Green"};
+            output_type = outputs[oty];
+            Vm = Vm_rest;
+            ntpool = ntpool_size;
+            firing = false;
+            firing_last_change = 0;
+            actions = 0;
+            isGrabbed = false;
     }
 }

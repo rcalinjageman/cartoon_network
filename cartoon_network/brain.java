@@ -1,5 +1,5 @@
 import greenfoot.*;
-
+import java.io.Serializable;
 
 /**
  * Write a description of class brain here.
@@ -7,7 +7,7 @@ import greenfoot.*;
  * @Bob Calin-Jageman
  * @1.0
  */
-public class brain extends World
+public class brain extends World 
 {
     // basic parameters for the world, included an editing opbject that will control which editing mode is selected
     public int neuron_count;
@@ -15,6 +15,7 @@ public class brain extends World
     public EditingMode editing_mode_object;
     public boolean finch_started;
     public boolean finch_exists;
+    public int height, width;
     
     //parameters for controlling the Finch, if available
     public float output_multiplier;
@@ -39,12 +40,17 @@ public class brain extends World
         // Create a new world with 600x400 cells with a cell size of 1x1 pixels.
         // Would be nice to enable the screen size and elements to scale with the monitor resolution being used
       
+        
+       
+        
         //setup some basics
-        super(800, 600, 1); 
+        super((int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth() *.75), (int) (java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight() *.75), 1); 
         neuron_count = 0;
         editing_mode_current = 6;
         
+
         
+      
         //no finch yet
         finch_started = false;
         finch_exists = false;
@@ -100,6 +106,25 @@ public class brain extends World
            //but it is essential for when a new instance is created
            neuron_count = neuron_count + 1;
            return neuron_count;
+    }
+    
+    public void pack_neuron(neuron thisneuron) {
+        thisneuron.x = thisneuron.getX();
+        thisneuron.y = thisneuron.getY();
+        thisneuron.rotation = thisneuron.getRotation();
+        
+    }
+    
+    public void load_neuron(neuron loadedneuron) {
+        neuron_count = neuron_count+1;
+        loadedneuron.neuron_id = neuron_count;
+        loadedneuron.mybrain = (brain) this;
+        loadedneuron.unpack_type();
+        loadedneuron.prep_costumes(loadedneuron.size_scale);
+        loadedneuron.setRotation(loadedneuron.rotation);
+        loadedneuron.set_look(loadedneuron.current_look);
+        addObject(loadedneuron, loadedneuron.x, loadedneuron.y); 
+        
     }
     
     public void started() {

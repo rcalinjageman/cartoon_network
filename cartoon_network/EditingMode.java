@@ -6,6 +6,18 @@ import javax.swing.JOptionPane;
 import java.util.*;
 import edu.cmu.ri.createlab.terk.robot.finch.DefaultFinchController;
 import edu.cmu.ri.createlab.terk.robot.finch.FinchController;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  * Write a description of class EditingMode here.
@@ -23,10 +35,11 @@ public class EditingMode extends Actor
     public int previous_state;
     public String state_message;
     public boolean expanded = false;
-    public String[] menu_items = {"Edit Network:", "(A)dd", "(D)elete", "(R)otate", "(G)row", "(S)hrink", "(M)ove", "----", "Experiment:", "e(X)cite", "i(N)hibit", "----", "Change Neurons:", "Activity (T)ype", "Activity (L)evel", "Transmitter Type (w)", "Transmitter Amount (q)", "----", "FINCH:", "(C)onnect", "(I)nputs", "(O)utputs", "Temp Threshold (-)", "Light Threshold (0)"};
+    public String[] menu_items = {"Edit Network:", "(A)dd", "(D)elete", "(R)otate", "(G)row", "(S)hrink", "(M)ove", "----", "Experiment:", "e(X)cite", "i(N)hibit", "----", "Change Neurons:", "Activity (T)ype", "Activity (L)evel", "Transmitter Type (w)", "Transmitter Amount (q)", "----", "FINCH:", "(C)onnect", "(I)nputs", "(O)utputs", "Temp Threshold (-)", "Light Threshold (0)", "FILES:", "Open File", "Save File"};
     public int mouse_over;
     public int current_menu;
     public int docommand;
+    public int lastcommand;
     
     /**
      * Act - do whatever the EditingMode wants to do. This method is called whenever
@@ -37,6 +50,7 @@ public class EditingMode extends Actor
         previous_state = thisbrain.editing_mode_current;
         state_message = "Initialize";
         current_menu = -1;
+        lastcommand = 0;
         
         setImage();
         
@@ -60,7 +74,7 @@ public class EditingMode extends Actor
                 //this is clever, but won't scale to other resolutions well
                 greenfoot.MouseInfo mi = Greenfoot.getMouseInfo();
                 if (mi!=null) {
-                if(mi.getX() < 240) {
+                if(mi.getX() < 280) {
                     int myx = mi.getY();
                     if(myx > 0) {
                         mouse_over = Math.round(myx/10);
@@ -82,8 +96,9 @@ public class EditingMode extends Actor
                 if(mi.getX() < 240) {
                     int myx = mi.getY();
                     if(myx > 0) {
+                        lastcommand = docommand;
                         docommand = Math.round(myx/10);
-                        if(!mybrain.finch_started && docommand > 20) {
+                        if(!mybrain.finch_started && docommand > 20 && docommand <25) {
                             docommand = 0;
                         }
                     }
@@ -263,6 +278,75 @@ public class EditingMode extends Actor
             
         }
 
+        if (docommand == 26) {
+                 current_menu = docommand;
+                 docommand = 0;
+                 
+                 JFileChooser jfc = new JFileChooser();
+                 jfc.setDialogTitle("Save newtwork as...");
+                 jfc.setFileFilter(new FileNameExtensionFilter("Network files", "nwk", "NWK"));
+                 int res = jfc.showOpenDialog(new javax.swing.JFrame());
+                 if(res == JFileChooser.APPROVE_OPTION) {                            
+                    try {   
+                        FileInputStream fis = new FileInputStream(jfc.getSelectedFile().getAbsolutePath());
+                        ObjectInputStream ois = new ObjectInputStream(fis);
+                
+                        java.util.List<neuron> allneurons = mybrain.getObjects(neuron.class);
+                        for (neuron thisneuron : allneurons) {
+                            mybrain.removeObject(thisneuron);
+                        }
+                        mybrain.neuron_count = 0;
+                
+                        java.util.List<neuron> newneurons = (java.util.List<neuron>) ois.readObject();
+                        for (neuron thisneuron : newneurons) {
+                            mybrain.load_neuron(thisneuron);
+                        }
+                        ois.close();
+                    } catch(FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException c) {
+                        System.out.println("Error: class not found");
+                        c.printStackTrace();
+                        return;
+                    }  
+                }
+                
+        }
+        
+        if (docommand == 27 & mybrain.neuron_count > 0) {
+            current_menu = docommand;
+            docommand = 0;
+            
+            JFileChooser jfc = new JFileChooser();
+                jfc.setDialogTitle("Save newtwork as...");
+                jfc.setFileFilter(new FileNameExtensionFilter("Network files", "nwk", "NWK"));
+                
+                int res = jfc.showSaveDialog(new javax.swing.JFrame());
+                
+                if(res == JFileChooser.APPROVE_OPTION) {
+            
+                    try {
+                        
+                        FileOutputStream fos = new FileOutputStream(jfc.getSelectedFile().getAbsolutePath().replace(".nwk", "")+".nwk");
+                        ObjectOutputStream oos = new ObjectOutputStream(fos);
+                        java.util.List<neuron> allneurons = mybrain.getObjects(neuron.class);
+                        for (neuron thisneuron : allneurons) {
+                            mybrain.pack_neuron(thisneuron);
+                        }
+                
+                        oos.writeObject(allneurons);
+                        oos.close();
+                    } catch(FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+      }
+          
+        
         
         if(previous_state != mybrain.editing_mode_current) {
             //editing mode has changed, so re-draw the menu
@@ -278,7 +362,7 @@ public class EditingMode extends Actor
             //menu has been opened, so print all the possible commands
             //  set colors based on command status
             GreenfootImage image;
-            image = new GreenfootImage(200,240);
+            image = new GreenfootImage(200,300);
             
             float fontSize = 12.0f;
             greenfoot.Font font = image.getFont();
@@ -286,10 +370,11 @@ public class EditingMode extends Actor
             image.setFont(font);
             
             
-            int mystart = 10;
+            int mystart = 40;
             int mycol = 75;
             int currentitem = 1;
             boolean passedfinch = false;
+            boolean passedfiles = false;
             
             for (String mystring : menu_items) {
                 image.setColor(new greenfoot.Color(0,0,0) );
@@ -301,6 +386,9 @@ public class EditingMode extends Actor
                     //we are into the finch menu
                     passedfinch = true;
                 }
+                if (mystring.contains("FILES")) {
+                    passedfiles = true;
+                }
                 if (current_menu == currentitem) {
                     //make the current mode a different color
                     image.setColor(new greenfoot.Color(255,0,0) );
@@ -309,10 +397,14 @@ public class EditingMode extends Actor
                     //make the mode with the mouse over a different color
                     image.setColor(new greenfoot.Color(200,0,200) );
                 }
-                if (passedfinch && !mybrain.finch_started && !mystring.contains("onnect")) {
+                if (passedfinch && !mybrain.finch_started && !mystring.contains("onnect") && !passedfiles) {
                     //make the finch options greyed out if finch not connected, except the connect command
                     //terrible kludge!
                     image.setColor(new greenfoot.Color(200,200,200) );
+                }
+                if (mystring.contains(":")) {
+                    //this is an organizing item
+                    image.setColor(new greenfoot.Color(0,0,255) );
                 }
                 image.drawString(mystring, mycol, mystart);
                 mystart = mystart + 10;
