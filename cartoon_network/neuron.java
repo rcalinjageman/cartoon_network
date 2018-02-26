@@ -32,6 +32,9 @@ public class neuron extends Actor implements Serializable
     public float cak;
     public float gcak;
     public float cak_tc;
+    public int burstcount;
+    public int bursttime;
+    public boolean bursting;
     
     public int current_look;
     public String[] looks = {"neuron_rest.png", "neuron_fire1.png", "neuron_fire2.png", "neuron_fire3.png", "neuron_fire4.png", "neuron_fire5.png", "neuron_fire6.png"};
@@ -75,10 +78,11 @@ public class neuron extends Actor implements Serializable
         threshold_min = -30;
         threshold = threshold_min;
         threshold_tc = 20;
+                
+        burstcount = 0;
+        bursttime = 0;
+        bursting = false;
         
-        cak = 0;
-        gcak = 0;
-        cak_tc = 60;
         
         ntpool_size = 10;
         ntpool = ntpool_size;
@@ -338,19 +342,38 @@ public class neuron extends Actor implements Serializable
             }
         }
         
-        //if not at rest, decay back towards rest
-        if (gcak > 0) {
-            Vm = Vm + ( gcak * cak);
-        }
         
+        //calcium-activated K+ current
+        if (neuron_type == 3) {
+            if(bursting) {
+                if(burstcount > 9) {
+                    burstcount = 0;
+                    bursting = false;
+                    Vm_rest = -50;
+                    Vm = Vm_rest;
+                } else {
+                    if (bursttime < 3000) {
+                        bursttime = bursttime + 1;
+                    }
+                }   
+            } else {
+                if (bursttime < 1) {
+                    bursting = true;
+                    Vm_rest = threshold_min+1;
+                    Vm = Vm_rest;
+                } else {
+                    bursttime = bursttime - 1;
+                }
+            }
+        }
+
+        //if not at rest, decay back towards rest
+                
          if (Vm != Vm_rest) {
             Vm = Vm + ((Vm_rest - Vm) / Vm_tc);
         }
         
-        //calcium-activated K+ current
-         if (cak != 0) {
-             cak = cak + ((0 - cak) / cak_tc);
-            }
+      
         
         //if threshold has been reset after AP, decay back to normal threshold
          if (threshold != threshold_min) {
@@ -439,7 +462,9 @@ public class neuron extends Actor implements Serializable
         threshold = threshold_max;
         firing = true;
         firing_last_change = actions;
-        cak = cak - 0.2f;
+        if (bursting) {
+            burstcount = burstcount + 1;
+        }
     }
     
     public void set_look(int look) {
@@ -572,25 +597,27 @@ public class neuron extends Actor implements Serializable
         //set the activity level for the neuron
         //silent neurons have a rest of -50, which is below threshold
         //spontaneously active have Vrest over threshold
-        //doesn't seem like bursting is actually implemented yet?
+        
         if (newtype == 1) {
             Vm_rest = -50;
             Vm = Vm_rest;
-            gcak = 0;
+            bursting = false;
             return;
         }
         if (newtype == 2) {
             Vm_rest = threshold_min+1;
             Vm = Vm_rest;
-            threshold_tc = 5 + ((10 - activity_level) *10);;
-            gcak = 0;
+            threshold_tc = 5 + ((10 - activity_level) *10);
+            bursting = false;
             return;
         }
         if (newtype == 3) {
             Vm_rest = threshold_min+1;
             Vm = Vm_rest;
-            threshold_tc = 5 + ((10 - activity_level) *3);
-            gcak = 1;
+            threshold_tc = 5 + ((10 - activity_level) *1);
+            burstcount = 0;
+            bursttime = 0;
+            bursting = true;
             return;
         }
     }
