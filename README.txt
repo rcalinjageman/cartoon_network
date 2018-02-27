@@ -2,9 +2,14 @@
 
 This is a simple and fun neural network simulator.  It lets students of nearly any age playfully explore how small sets of neurons can produce complex and interesting behaviors.  Also, the simulator can be connected to a Finch robots.  Requires Java to be installed.  
 
-To get started:
-* Download cartoon_network.jar from the files posted here to github
+To get started: 
+* For PC:
+** Download cartoon_network.jar from the files posted here to github
 ** https://raw.githubusercontent.com/rcalinjageman/cartoon_network/master/cartoon_network.jar
+* For Os X: 
+** Download cartoon_network_mac.zip and then unzip the files)
+** https://github.com/rcalinjageman/cartoon_network/blob/master/cartoon_network_mac.zip
+** Then unzip.  You will see cartoon_network.jar among the unzipped files.
 * Double-click the jar file to open it (your computer will need an up-to-date version of Java installed).
 * Click 'a' to enter add mode, then click around the screen to add more neurons.
 * Click 'x' to enter excite mode, then click a neuron to excite it
