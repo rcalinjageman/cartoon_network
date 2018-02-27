@@ -35,6 +35,7 @@ public class neuron extends Actor implements Serializable
     public int burstcount;
     public int bursttime;
     public boolean bursting;
+    public int accelmult;
     
     public int current_look;
     public String[] looks = {"neuron_rest.png", "neuron_fire1.png", "neuron_fire2.png", "neuron_fire3.png", "neuron_fire4.png", "neuron_fire5.png", "neuron_fire6.png"};
@@ -83,6 +84,7 @@ public class neuron extends Actor implements Serializable
         bursttime = 0;
         bursting = false;
         
+        accelmult = 6;
         
         ntpool_size = 10;
         ntpool = ntpool_size;
@@ -277,7 +279,7 @@ public class neuron extends Actor implements Serializable
             
             //set inputs
             if (mybrain.editing_mode_current == 13) {
-                Object[] possibilities = {"None", "Left hit", "Right hit", "Left light", "Right light", "Temperature"};
+                Object[] possibilities = {"None", "Left hit", "Right hit", "Left light", "Right light", "Temperature", "XaccelForward", "XaccelBack", "YaccelLeft", "YaccelRight", "Zaccel+", "Zaccel-"};
                 String current = input_type;
  
                 String response = (String)JOptionPane.showInputDialog(new JInternalFrame(),"Select inputs:","Inputs:", JOptionPane.PLAIN_MESSAGE,null,possibilities,current);
@@ -340,6 +342,53 @@ public class neuron extends Actor implements Serializable
                     this.stim((float) (tempp-mybrain.temp_threshold) * 4);
                 }
             }
+            
+            if (input_type == "XaccelForward") {
+               double xaccel = (double) GreenFinch.get().getXAcceleration();
+               if (xaccel > 0) {
+                   this.stim( (float) xaccel * 4 );
+                }
+            }
+            
+            if (input_type == "XaccelBack") {
+               double xaccel = (double) GreenFinch.get().getXAcceleration();
+               if (xaccel < 0) {
+                   xaccel = 0 - xaccel;
+                   this.stim( (float) xaccel * accelmult );
+                }
+            }
+            
+            if (input_type == "YaccelLeft") {
+               double xaccel = (double) GreenFinch.get().getYAcceleration();
+               if (xaccel > 0) {
+                   this.stim( (float) xaccel * accelmult );
+                }
+            }
+            
+            if (input_type == "YaccelRight") {
+               double xaccel = (double) GreenFinch.get().getYAcceleration();
+               if (xaccel < 0) {
+                   xaccel = 0 - xaccel;
+                   this.stim( (float) xaccel * accelmult );
+                }
+            }
+            
+            if (input_type == "Zaccel+") {
+               double xaccel = (double) GreenFinch.get().getZAcceleration();
+               if (xaccel > 0) {
+                   this.stim( (float) xaccel * accelmult );
+                }
+            }
+            
+            if (input_type == "Zaccel-") {
+               double xaccel = (double) GreenFinch.get().getZAcceleration();
+               if (xaccel < 0) {
+                   xaccel = 0 - xaccel;
+                   this.stim( (float) xaccel * accelmult );
+                }
+            }
+            
+            
         }
         
         
@@ -487,6 +536,7 @@ public class neuron extends Actor implements Serializable
         font = font.deriveFont(fontSize);  
         image.setFont(font);  
         DecimalFormat df = new DecimalFormat("#");
+        DecimalFormat af = new DecimalFormat("#0.00");
         image.drawString("id=" + neuron_id, 65, 15);
         
         
@@ -518,7 +568,6 @@ public class neuron extends Actor implements Serializable
         if (output_type == "Blue") {
             image.drawString("Blue= " + df.format(mybrain.bcolor), 45, 25);
         }
-
                    //"None", "Left hit", "Right hit", "Left light", "Right light", "Temperature"
  
         if(input_type != "None" && mybrain!=null)
@@ -542,7 +591,16 @@ public class neuron extends Actor implements Serializable
             if (input_type == "Temperature") {
                 image.drawString("Temp= " + String.valueOf(GreenFinch.get().getTemperature()), 45, 25);
             }
-
+            
+            if (input_type.contains("Xaccel")) {
+                image.drawString("Xaccel= " + String.valueOf(af.format(GreenFinch.get().getXAcceleration())), 45, 25);
+            }
+            if (input_type.contains("Yaccel")) {
+                image.drawString("Yaccel= " + String.valueOf(af.format(GreenFinch.get().getYAcceleration())), 45, 25);
+            }
+            if (input_type.contains("Zaccel")) {
+                image.drawString("Zaccel= " + String.valueOf(af.format(GreenFinch.get().getZAcceleration())), 45, 25);
+            }
 
         }
         
@@ -624,7 +682,8 @@ public class neuron extends Actor implements Serializable
     
     
     public void unpack_type() {
-            String[] possibilities = {"None", "Left hit", "Right hit", "Left light", "Right light", "Temperature"};
+          
+            String[] possibilities = {"None", "Left hit", "Right hit", "Left light", "Right light", "Temperature", "XaccelForward", "XaccelBack", "YaccelLeft", "YaccelRight", "Zaccel+", "Zaccel-"};
             input_type = possibilities[ity];
             String[] outputs = {"None", "Left forward", "Left backward", "Right forward", "Right backward", "Buzz", "Red", "Blue", "Green"};
             output_type = outputs[oty];
