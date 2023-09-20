@@ -28,3 +28,19 @@ Want to connect to a FINCH robot?
 Want to modify Cartoon Network?
 * The source code is written in Java within the Greenfoot framework
 * Learn more about Greenfoot here: https://www.greenfoot.org/ 
+
+
+
+
+= Terms of Conditions and Privacy Policy for Cartoon Network =
+
+Last updated: September 20, 2023
+
+This Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your information when You use Cartoon Network and tells You about Your privacy rights and how the law protects You.
+
+Cartoon network colllects no personal data.  It does not transmit personal data to the developer or any other parties.  
+
+If you have any questions about this Privacy Policy, You can contact us:
+
+    By email: rcalinjageman@dom.edu
+
